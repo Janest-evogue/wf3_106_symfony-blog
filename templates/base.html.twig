@@ -8,14 +8,44 @@
         {% endblock %}
     </head>
     <body>
+        <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+            <div class="container navbar-nav">
+                <a class="navbar-brand" href="#">
+                    Admin
+                </a>
+                <div class="navbar-collapse">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_admin_category_index') }}">
+                                Gestion catégories
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
         <nav class="navbar navbar-expand-md navbar-dark bg-secondary">
             <div class="container navbar-nav">
                 <a class="navbar-brand" href="{{ path('app_index_index') }}">
                     Blog
                 </a>
+                {# affiche le rendu de la méthode menu() de CategoryController #}
+                {{ render(controller('App\\Controller\\CategoryController::menu')) }}
             </div>
         </nav>
         <div class="container">
+            {# affichage des messages flash #}
+            {% for type, messages in app.session.flashbag.all %}
+                {% for message in messages %}
+                    {# pour la classe alert-danger du bootstrap #}
+                    {% if type == 'error' %}
+                        {% set type = 'danger' %}
+                    {% endif %}
+                    <div class="alert alert-{{ type }} mt-2">
+                        {{ message|raw }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
             {% block body %}{% endblock %}
         </div>
         {% block javascripts %}
