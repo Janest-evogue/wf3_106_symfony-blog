@@ -8,6 +8,8 @@
         {% endblock %}
     </head>
     <body>
+    {# s'il y a un utilisateur connecté et qu'il a le rôle ROLE_ADMIN #}
+    {% if is_granted('ROLE_ADMIN') %}
         <nav class="navbar navbar-expand-md navbar-dark bg-dark">
             <div class="container navbar-nav">
                 <a class="navbar-brand" href="#">
@@ -20,10 +22,17 @@
                                 Gestion catégories
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_admin_article_index') }}">
+                                Gestion articles
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
         </nav>
+    {% endif %}
+
         <nav class="navbar navbar-expand-md navbar-dark bg-secondary">
             <div class="container navbar-nav">
                 <a class="navbar-brand" href="{{ path('app_index_index') }}">
@@ -31,6 +40,32 @@
                 </a>
                 {# affiche le rendu de la méthode menu() de CategoryController #}
                 {{ render(controller('App\\Controller\\CategoryController::menu')) }}
+                <ul class="navbar-nav">
+                    {# app.user = l'utilisateur connecté #}
+                    {% if app.user is null %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_registration_register') }}">
+                                Inscription
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_registration_login') }}">
+                                Connexion
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <span class="nav-link">
+                                {{ app.user }}
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ path('app_registration_logout') }}">
+                                Déconnexion
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
             </div>
         </nav>
         <div class="container">
