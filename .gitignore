@@ -20,3 +20,6 @@
 
 ### phpstorm ###
 /.idea/
+
+### images ###
+/public/images/

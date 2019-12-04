@@ -20,6 +20,12 @@ class CategoryController extends AbstractController
      */
     public function index(Category $category)
     {
+        /*
+         * Lister les 2/3 derniers articles en date de la catégorie
+         * avec un lien vers une page article à créer dans un nouveau contrôleur
+         * qui affiche le détail de l'article avec son image s'il en a une
+         */
+
         return $this->render(
             'category/index.html.twig',
             [
