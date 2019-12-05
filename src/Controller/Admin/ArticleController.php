@@ -6,12 +6,14 @@ namespace App\Controller\Admin;
 
 use App\Entity\Article;
 use App\Form\ArticleType;
+use App\Form\SearchArticleType;
 use App\Repository\ArticleRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\File\File;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -26,17 +28,35 @@ class ArticleController extends AbstractController
     /**
      * @Route("/")
      */
-    public function index(ArticleRepository $repository)
+    public function index(Request $request, ArticleRepository $repository)
     {
         // Lister les articles par date de publication décroissante
         // dans un tableau HTML.
         // Afficher toutes les infos sauf le contenu
-        $articles = $repository->findBy([], ['publicationDate' => 'DESC']);
+
+        /*
+         * Ajouter une colonne avec le nombre de commentaires
+         * qui soit un lien cliquable vers une page qui liste les commentaires
+         * de l'article avec la possibilité de les supprimer
+         */
+
+        //$articles = $repository->findBy([], ['publicationDate' => 'DESC']);
+
+        // formulaire de recherche
+        $searchForm = $this->createForm(SearchArticleType::class);
+
+        $searchForm->handleRequest($request);
+
+        // données du formulaire
+        dump($searchForm->getData());
+
+        $articles = $repository->search((array)$searchForm->getData());
 
         return $this->render(
             'admin/article/index.html.twig',
             [
-                'articles' => $articles
+                'articles' => $articles,
+                'search_form' => $searchForm->createView()
             ]
         );
     }
@@ -155,7 +175,11 @@ class ArticleController extends AbstractController
     {
         // si l'article a une image, on la supprime
         if (!is_null($article->getImage())) {
-            unlink($this->getParameter('upload_dir') . $article->getImage());
+            $file = $this->getParameter('upload_dir') . $article->getImage();
+
+            if (file_exists($file)) {
+                unlink($file);
+            }
         }
 
         // suppression de l'article en bdd
@@ -165,5 +189,13 @@ class ArticleController extends AbstractController
         $this->addFlash('success', "L'article est supprimé");
 
         return $this->redirectToRoute('app_admin_article_index');
+    }
+
+    /**
+     * @Route("/ajax/contenu/{id}")
+     */
+    public function ajaxContent(Article $article)
+    {
+        return new Response(nl2br($article->getContent()));
     }
 }

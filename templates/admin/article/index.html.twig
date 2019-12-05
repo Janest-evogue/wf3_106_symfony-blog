@@ -8,6 +8,34 @@
         Ajouter un article
     </a>
 
+    <div class="card bg-light mb-3">
+        <div class="card-body">
+            {{ form_start(search_form) }}
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form_row(search_form.title) }}
+                </div>
+                <div class="col-md-6">
+                    {{ form_row(search_form.category) }}
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-6">
+                    {{ form_row(search_form.start_date) }}
+                </div>
+                <div class="col-md-6">
+                    {{ form_row(search_form.end_date) }}
+                </div>
+            </div>
+            <div class="text-right">
+                <button type="submit" class="btn btn-info">
+                    Rechercher
+                </button>
+            </div>
+            {{ form_end(search_form) }}
+        </div>
+    </div>
+
     <table class="table table-striped">
         <tr>
             <th>Id</th>
@@ -15,7 +43,8 @@
             <th>Date de publication</th>
             <th>Catégorie</th>
             <th>Auteur</th>
-            <th width="250px"></th>
+            <th>Commentaires</th>
+            <th width="300px"></th>
         </tr>
         {% for article in articles %}
             <tr>
@@ -24,6 +53,11 @@
                 <td>{{ article.publicationDate|date('d/m/Y H:i') }}</td>
                 <td>{{ article.category }}</td>
                 <td>{{ article.author }}</td>
+                <td class="text-center">
+                    <a href="{{ path('app_admin_comment_index', {'id': article.id}) }}">
+                        {{ article.comments|length }}
+                    </a>
+                </td>
                 <td>
                     <a href="{{ path('app_admin_article_edit', {"id": article.id}) }}"
                        class="btn btn-primary">
@@ -33,8 +67,56 @@
                        class="btn btn-danger">
                         Supprimer
                     </a>
+                    <a href="{{ path('app_admin_article_ajaxcontent', {'id': article.id}) }}"
+                        class="btn btn-outline-secondary btn-content">
+                        Aperçu
+                    </a>
                 </td>
             </tr>
         {% endfor %}
     </table>
+
+    <div class="modal" tabindex="-1" role="dialog" id="modal-content">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Aperçu</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+
+    <script>
+        $(function () {
+            $('.btn-content').click(function (event) {
+                event.preventDefault();
+
+                var href = $(this).attr('href');
+
+                $.get(
+                    href,
+                    function (response) {
+                        var $modal = $('#modal-content');
+
+                        $modal.find('.modal-body').html(response);
+
+                        $modal.modal('show');
+                    }
+                );
+            });
+        });
+    </script>
 {% endblock %}

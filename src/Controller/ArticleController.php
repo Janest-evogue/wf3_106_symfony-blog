@@ -3,7 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Article;
+use App\Entity\Comment;
+use App\Form\CommentType;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -17,8 +21,11 @@ class ArticleController extends AbstractController
     /**
      * @Route("/{id}", requirements={"id": "\d+"})
      */
-    public function index(Article $article)
-    {
+    public function index(
+        Request $request,
+        EntityManagerInterface $manager,
+        Article $article
+    ) {
         /*
          * Sous l'article, si l'utilisateur n'est pas connecté,
          * l'inviter à le faire pour pouvoir écrire un commentaire.
@@ -36,10 +43,42 @@ class ArticleController extends AbstractController
          * date de publication, contenu du message
          */
 
+        $comment = new Comment();
+
+        $form = $this->createForm(CommentType::class, $comment);
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted()) {
+            if ($form->isValid()) {
+                $comment
+                    ->setUser($this->getUser())
+                    ->setArticle($article)
+                ;
+
+                $manager->persist($comment);
+                $manager->flush();
+
+                $this->addFlash('success', 'Votre commentaire est enregistré');
+
+                // pour éviter de republier le commentaire en rafraichissant la page
+                return $this->redirectToRoute(
+                    // la route de la page sur laquelle on est
+                    $request->get('_route'),
+                    [
+                        'id' => $article->getId()
+                    ]
+                );
+            } else {
+                $this->addFlash('error', 'Le formulaire contient des erreurs');
+            }
+        }
+
         return $this->render(
             'article/index.html.twig',
             [
-                'article' => $article
+                'article' => $article,
+                'form' => $form->createView()
             ]
         );
     }
