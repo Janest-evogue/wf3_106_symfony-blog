@@ -4,4 +4,9 @@
     <h1>Accueil</h1>
 
     <p>Bienvenu sur le blog</p>
+
+    <h2>Derniers articles</h2>
+
+    {% include 'article/_list.html.twig' with {'articles': articles} only %}
+
 {% endblock %}

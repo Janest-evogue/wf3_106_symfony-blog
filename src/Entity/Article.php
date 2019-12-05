@@ -60,6 +60,11 @@ class Article
         $this->publicationDate = new \DateTime();
     }
 
+    public function __toString()
+    {
+        return $this->title;
+    }
+
     public function getId(): ?int
     {
         return $this->id;
