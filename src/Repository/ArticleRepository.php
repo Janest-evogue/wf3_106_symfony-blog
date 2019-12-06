@@ -60,6 +60,10 @@ class ArticleRepository extends ServiceEntityRepository
             ;
         }
 
+        if (!empty($filters['with_comments'])) {
+            $qb->andWhere('a.comments IS NOT EMPTY');
+        }
+
         // la requête générée
         $query = $qb->getQuery();
 

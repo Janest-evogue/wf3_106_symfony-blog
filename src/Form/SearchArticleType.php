@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\Category;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -50,6 +51,14 @@ class SearchArticleType extends AbstractType
                 [
                     'label' => 'Date de fin',
                     'widget' => 'single_text',
+                    'required' => false
+                ]
+            )
+            ->add(
+                'with_comments',
+                CheckboxType::class,
+                [
+                    'label' => 'Articles avec des commentaires',
                     'required' => false
                 ]
             )
